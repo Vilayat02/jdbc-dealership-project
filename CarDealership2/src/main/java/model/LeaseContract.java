@@ -31,6 +31,24 @@ public class LeaseContract {
         this.deposit = deposit;
     }
 
+    public LeaseContract(String vin,
+                         String customerFullName,
+                         String customerPhone,
+                         LocalDateTime leaseStartDate,
+                         LocalDateTime leaseEndDate,
+                         BigDecimal monthlyPayment,
+                         int mileageLimit,
+                         BigDecimal deposit) {
+        this.vin              = vin;
+        this.customerFullName = customerFullName;
+        this.customerPhone    = customerPhone;
+        this.leaseStartDate   = leaseStartDate;
+        this.leaseEndDate     = leaseEndDate;
+        this.monthlyPayment   = monthlyPayment;
+        this.mileageLimit     = mileageLimit;
+        this.deposit          = deposit;
+    }
+
     public LeaseContract(int leaseContractId, String vin, String customerFullName, String customerPhone, LocalDateTime leaseStartDate, int durationMonths, BigDecimal monthlyPayment, int mileageLimit, BigDecimal deposit) {
         this.leaseContractId  = leaseContractId;
         this.vin              = vin;
@@ -113,6 +131,22 @@ public class LeaseContract {
 
     public void setDeposit(BigDecimal deposit) {
         this.deposit = deposit;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "LeaseContractID[%d] VIN:%s | Customer:%s | Phone:%s | %s → %s | Payment:%s | MiLimit:%d | Deposit:%s",
+                leaseContractId,
+                vin,
+                customerFullName,
+                customerPhone,
+                leaseStartDate,
+                leaseEndDate,
+                monthlyPayment,
+                mileageLimit,
+                deposit
+        );
     }
 
 }

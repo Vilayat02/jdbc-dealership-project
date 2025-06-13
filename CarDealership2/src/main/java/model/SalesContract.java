@@ -17,6 +17,13 @@ public class SalesContract {
         this.salePrice = salePrice;
     }
 
+    public SalesContract(String vin,
+                        String customerName,
+                        String customerPhone,
+                        BigDecimal salePrice) {
+        this(0, vin, customerName, customerPhone, salePrice);
+    }
+
     public int getId() {
         return id;
     }
@@ -55,5 +62,17 @@ public class SalesContract {
 
     public void setSalePrice(BigDecimal salePrice) {
         this.salePrice = salePrice;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "ContractID[%d] VIN:%s | Customer:%s | Phone:%s | Price:%s",
+                id,
+                vin,
+                customerName,
+                customerPhone,
+                salePrice
+        );
     }
 }

@@ -1,10 +1,14 @@
 package model;
 
+import dao.LeaseDao;
+import dao.SalesDao;
 import dao.VehicleDao;
 import data.DatabaseConnection;
 import data.DealershipFileManager;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
 
@@ -15,9 +19,13 @@ public class UserInterface {
     private List<Vehicle> vehicles;
     private DealershipFileManager fileManager = new DealershipFileManager();
     VehicleDao vehicleDao = new VehicleDao(DatabaseConnection.getDataSource());
+    SalesDao salesDao = new SalesDao(DatabaseConnection.getDataSource());
+    LeaseDao leaseDao = new LeaseDao(DatabaseConnection.getDataSource());
 
     public UserInterface() {
         this.vehicleDao = new VehicleDao(DatabaseConnection.getDataSource());
+        this.salesDao = new SalesDao(DatabaseConnection.getDataSource());
+        this.leaseDao = new LeaseDao(DatabaseConnection.getDataSource());
     }
 
     private void init() {
@@ -30,7 +38,8 @@ public class UserInterface {
         int choice;
         boolean run = true;
         while (run) {
-            System.out.println("\nChoose an option:\n1-Find vehicles within a price range\n2-Find vehicles by make/model\n3-Find vehicles by year range\n4-Find vehicles by color\n5-Find vehicles by mileage range\n6-Find vehicles by type (car,truck,SUV,van)\n7-List ALL vehicles\n8-Add a vehicle\n9-Remove a vehicle\n99-Quit");
+            System.out.println("\nChoose an option:\n1-Find vehicles within a price range\n2-Find vehicles by make/model\n3-Find vehicles by year range\n4-Find vehicles by color\n5-Find vehicles by mileage range\n6-Find vehicles by type (car,truck,SUV,van)\n7-List ALL vehicles\n8-Add a vehicle\n9-Remove a vehicle\n" +
+                    "10-Add Sales Contract\n11-Get all Sales\n12-Add Lease Contract\n13-Get all Lease Contract\n99-Quit");
             int choice1 = sc.nextInt();
             sc.nextLine();
             switch (choice1) {
@@ -60,7 +69,18 @@ public class UserInterface {
                     break;
                 case 9:
                 processRemoveVehicleRequest();
+                case 10:
+                processAddSalesContractRequest();
                     break;
+                case 11:
+                processGetAllSalesRequest();
+                break;
+                case 12:
+                processAddLeaseContractRequest();
+                break;
+                case 13:
+                processGetAllLeasesRequest();
+                break;
                 case 99:
                     run = false;
                     break;
@@ -189,12 +209,73 @@ public class UserInterface {
             }
         }
 
+    public void processAddSalesContractRequest() {
+        System.out.print("Enter VIN to sell: ");
+        String vin = sc.nextLine();
+        System.out.print("Enter customer name: ");
+        String name = sc.nextLine();
+        System.out.print("Enter customer phone: ");
+        String phone = sc.nextLine();
+        System.out.print("Enter sale price (e.g. 15000.00): ");
+        BigDecimal price = new BigDecimal(sc.nextLine());
+
+        SalesContract sale = new SalesContract(vin, name, phone, price);
+        try {
+            salesDao.addSale(sale);
+            System.out.println("Sales contract added.");
+        } catch (SQLException e) {
+            System.err.println("Error adding sales contract: " + e.getMessage());
+        }
+    }
+
+    public void processGetAllSalesRequest() throws SQLException {
+        List<SalesContract> salesContracts = salesDao.getAllSales();
+        salesContracts.forEach(System.out::println);
+    }
+
+    public void processAddLeaseContractRequest() {
+        System.out.print("Enter VIN to lease: ");
+        String vin = sc.nextLine();
+        System.out.print("Enter customer name: ");
+        String name = sc.nextLine();
+        System.out.print("Enter customer phone: ");
+        String phone = sc.nextLine();
+        System.out.print("Enter lease start (YYYY-MM-DDTHH:MM): ");
+        LocalDateTime start = LocalDateTime.parse(sc.nextLine());
+        System.out.print("Enter lease end   (YYYY-MM-DDTHH:MM): ");
+        LocalDateTime end   = LocalDateTime.parse(sc.nextLine());
+        System.out.print("Enter monthly payment (e.g. 300.00): ");
+        BigDecimal payment = new BigDecimal(sc.nextLine());
+        System.out.print("Enter mileage limit: ");
+        int limit = Integer.parseInt(sc.nextLine());
+        System.out.print("Enter deposit amount (e.g. 1000.00): ");
+        BigDecimal deposit = new BigDecimal(sc.nextLine());
+
+        LeaseContract lease = new LeaseContract(
+                vin, name, phone,
+                start, end,
+                payment, limit, deposit
+        );
+        try {
+            leaseDao.addLease(lease);
+            System.out.println("Lease contract added.");
+        } catch (SQLException e) {
+            System.err.println("Error adding lease contract: " + e.getMessage());
+        }
+    }
+
+    public void processGetAllLeasesRequest() throws SQLException {
+        List<LeaseContract> leaseContracts = leaseDao.getAllLease();
+        leaseContracts.forEach(System.out::println);
+    }
+
     public void displayFormat(List<Vehicle> vehicles) {
         if (vehicles.isEmpty()) {
             System.out.println("No vehicles in inventory.");
         } else {
             vehicles.forEach(System.out::println);
         }
+
 
         }
     }
